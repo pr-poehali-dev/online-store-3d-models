@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 const IMG_BONE = "https://cdn.poehali.dev/projects/1386808b-a5d7-4de2-b8cf-746aab457378/files/9091039e-f2d0-46e5-9701-3ca18d9c59cd.jpg";
 const IMG_HEARTS = "https://cdn.poehali.dev/projects/1386808b-a5d7-4de2-b8cf-746aab457378/files/95cd9609-de25-4e37-b6fe-a7f0a983aaa1.jpg";
@@ -35,6 +36,19 @@ const PRODUCTS: Product[] = [
   { id: 6, name: "3D-брелок «Кошечка»", price: 890, category: "3d", subcategory: "Брелоки", image: IMG_3D_CAT, badge: "Новинка", badgeColor: "green", rating: 4.8, reviews: 22 },
   { id: 7, name: "3D-статуэтка собаки", price: 2400, category: "3d", subcategory: "Статуэтки", image: IMG_3D_DOG, rating: 4.9, reviews: 18, hit: true },
   { id: 8, name: "3D-магнит на холодильник", price: 650, category: "3d", subcategory: "Магниты", image: IMG_3D_CAT, rating: 4.7, reviews: 56 },
+];
+
+const PORTFOLIO_ITEMS = [
+  { id: 1, image: "https://cdn.poehali.dev/projects/1386808b-a5d7-4de2-b8cf-746aab457378/files/6cda1c36-0a4a-4fec-ae5a-906a76ea0a4a.jpg", title: "Коллекция адресников", desc: "Разные формы и цвета для собак и кошек", category: "Адресники" },
+  { id: 2, image: "https://cdn.poehali.dev/projects/1386808b-a5d7-4de2-b8cf-746aab457378/files/cdbf4bff-24a8-4f3a-ab70-1dc5372e5dd5.jpg", title: "Адресник на ошейнике", desc: "Готовая работа — адресник для золотистого ретривера", category: "Адресники" },
+  { id: 3, image: "https://cdn.poehali.dev/projects/1386808b-a5d7-4de2-b8cf-746aab457378/files/9091039e-f2d0-46e5-9701-3ca18d9c59cd.jpg", title: "Адресник «Кость»", desc: "Нержавеющая сталь с лазерной гравировкой", category: "Адресники" },
+  { id: 4, image: "https://cdn.poehali.dev/projects/1386808b-a5d7-4de2-b8cf-746aab457378/files/97c2ab09-5b94-40e9-9540-6f0ce9a10bb0.jpg", title: "3D-портрет лабрадора", desc: "Точная копия питомца по фотографии", category: "3D-модели" },
+  { id: 5, image: "https://cdn.poehali.dev/projects/1386808b-a5d7-4de2-b8cf-746aab457378/files/8ca809bb-f6b8-4a7a-9cc5-456e216e86fb.jpg", title: "3D-портрет чёрного лабрадора", desc: "Смоляная статуэтка на деревянной подставке", category: "3D-модели" },
+  { id: 6, image: "https://cdn.poehali.dev/projects/1386808b-a5d7-4de2-b8cf-746aab457378/files/e501e2bc-c951-4d05-866b-6a6ab53cb233.jpg", title: "3D-портрет рыжего кота", desc: "Детализированная скульптура из смолы", category: "3D-модели" },
+  { id: 7, image: "https://cdn.poehali.dev/projects/1386808b-a5d7-4de2-b8cf-746aab457378/files/818ab645-031e-464a-9515-2294fa2ca420.jpg", title: "Коллекция брелоков", desc: "Миниатюрные фигурки животных из смолы", category: "3D-модели" },
+  { id: 8, image: "https://cdn.poehali.dev/projects/1386808b-a5d7-4de2-b8cf-746aab457378/files/6ee337a4-7426-42e3-96fc-6742620bd083.jpg", title: "Подарочный набор", desc: "3D-фигурка + именная подвеска в подарочной упаковке", category: "3D-модели" },
+  { id: 9, image: "https://cdn.poehali.dev/projects/1386808b-a5d7-4de2-b8cf-746aab457378/files/95cd9609-de25-4e37-b6fe-a7f0a983aaa1.jpg", title: "Адресники для кошек", desc: "Анодированный алюминий, форма сердечко и круг", category: "Адресники" },
+  { id: 10, image: "https://cdn.poehali.dev/projects/1386808b-a5d7-4de2-b8cf-746aab457378/files/ad6c6878-08ae-4d3b-ac14-3d8f9e65acf9.jpg", title: "3D-брелок кошечка", desc: "Белая смола, лёгкий и прочный", category: "3D-модели" },
 ];
 
 const BADGE_STYLE: Record<string, string> = {
@@ -114,6 +128,9 @@ export default function Index() {
   const [search, setSearch] = useState("");
   const [cartOpen, setCartOpen] = useState(false);
   const [orderDone, setOrderDone] = useState(false);
+  const [portfolioOpen, setPortfolioOpen] = useState(false);
+  const [portfolioFilter, setPortfolioFilter] = useState("Все");
+  const [portfolioZoom, setPortfolioZoom] = useState<typeof PORTFOLIO_ITEMS[0] | null>(null);
 
   const openProduct = (p: Product) => { setActiveProduct(p); setSection("product"); window.scrollTo(0, 0); };
   const goBack = () => { setSection(activeProduct?.category === "addresses" || activeProduct?.category === "3d" ? "catalog" : "home"); setActiveProduct(null); };
@@ -159,6 +176,7 @@ export default function Index() {
           <div className="hidden md:flex items-center gap-1 bg-white/5 rounded-full px-1 py-1 border border-white/10">
             <button onClick={() => { setSection("home"); setActiveProduct(null); }} className={`px-5 py-1.5 rounded-full text-sm font-medium transition-all ${section === "home" ? "bg-violet-600 text-white shadow-lg shadow-violet-500/30" : "text-white/50 hover:text-white"}`}>Главная</button>
             <button onClick={() => { setSection("catalog"); setActiveProduct(null); }} className={`px-5 py-1.5 rounded-full text-sm font-medium transition-all ${section === "catalog" || section === "product" ? "bg-violet-600 text-white shadow-lg shadow-violet-500/30" : "text-white/50 hover:text-white"}`}>Каталог</button>
+            <button onClick={() => setPortfolioOpen(true)} className="px-5 py-1.5 rounded-full text-sm font-medium transition-all text-white/50 hover:text-white">Портфолио</button>
           </div>
 
           <Sheet open={cartOpen} onOpenChange={setCartOpen}>
@@ -344,6 +362,32 @@ export default function Index() {
                   </div>
                 </div>
               </div>
+            </div>
+          </section>
+
+          {/* PORTFOLIO BANNER */}
+          <section className="py-6 px-4">
+            <div className="max-w-7xl mx-auto">
+              <button
+                onClick={() => setPortfolioOpen(true)}
+                className="w-full group relative overflow-hidden rounded-2xl border border-white/10 hover:border-violet-500/40 bg-white/3 hover:bg-white/5 transition-all p-6 flex items-center justify-between gap-6"
+              >
+                <div className="flex items-center gap-5">
+                  <div className="flex -space-x-3">
+                    {PORTFOLIO_ITEMS.slice(0, 4).map((item, i) => (
+                      <img key={item.id} src={item.image} alt="" className="w-12 h-12 rounded-xl object-cover border-2 border-[#0a0a0f]" style={{ zIndex: 4 - i }} />
+                    ))}
+                  </div>
+                  <div className="text-left">
+                    <div className="font-oswald text-xl font-bold text-white">Портфолио работ</div>
+                    <div className="text-white/40 text-sm mt-0.5">{PORTFOLIO_ITEMS.length} выполненных заказов — адресники и 3D-модели</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 bg-violet-600 group-hover:bg-violet-500 text-white px-5 py-2.5 rounded-full font-semibold text-sm transition-all flex-shrink-0 shadow-lg shadow-violet-500/20">
+                  Смотреть все
+                  <Icon name="ArrowRight" size={16} />
+                </div>
+              </button>
             </div>
           </section>
 
@@ -557,9 +601,100 @@ export default function Index() {
             <span className="font-oswald font-bold text-white text-lg">ПетТег</span>
             <span>— адресники и 3D-модели для питомцев</span>
           </div>
+          <button onClick={() => setPortfolioOpen(true)} className="flex items-center gap-2 text-violet-400 hover:text-violet-300 transition-colors font-medium">
+            <Icon name="Images" size={16} />
+            Портфолио работ
+          </button>
           <span>С любовью к животным 🐕 🐈</span>
         </div>
       </footer>
+
+      {/* PORTFOLIO MODAL */}
+      <Dialog open={portfolioOpen} onOpenChange={setPortfolioOpen}>
+        <DialogContent className="bg-[#0f0f18] border-white/10 max-w-5xl w-full max-h-[90vh] flex flex-col p-0 gap-0">
+          <DialogHeader className="px-6 pt-6 pb-4 border-b border-white/8 flex-shrink-0">
+            <DialogTitle className="font-oswald text-2xl text-white flex items-center gap-3">
+              <div className="w-8 h-8 rounded-xl bg-violet-600/20 flex items-center justify-center">
+                <Icon name="Images" size={18} className="text-violet-400" />
+              </div>
+              Портфолио работ
+              <span className="text-white/30 text-base font-normal ml-1">{PORTFOLIO_ITEMS.length} работ</span>
+            </DialogTitle>
+          </DialogHeader>
+
+          {/* Filter tabs */}
+          <div className="px-6 py-3 flex gap-2 flex-wrap flex-shrink-0 border-b border-white/5">
+            {["Все", "Адресники", "3D-модели"].map(f => (
+              <button
+                key={f}
+                onClick={() => setPortfolioFilter(f)}
+                className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all border ${portfolioFilter === f ? "bg-violet-600/20 border-violet-500 text-violet-400" : "border-white/10 text-white/40 hover:border-violet-500/40 hover:text-white"}`}
+              >
+                {f}
+              </button>
+            ))}
+          </div>
+
+          {/* Grid */}
+          <div className="overflow-y-auto flex-1 p-6">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+              {PORTFOLIO_ITEMS.filter(i => portfolioFilter === "Все" || i.category === portfolioFilter).map((item, idx) => (
+                <div
+                  key={item.id}
+                  onClick={() => setPortfolioZoom(item)}
+                  className="group relative rounded-2xl overflow-hidden cursor-pointer border border-white/8 hover:border-violet-500/40 transition-all hover:shadow-lg hover:shadow-violet-500/10 animate-fade-in"
+                  style={{ animationDelay: `${idx * 50}ms`, opacity: 0, animationFillMode: "forwards" }}
+                >
+                  <img src={item.image} alt={item.title} className="w-full aspect-square object-cover group-hover:scale-105 transition-transform duration-500" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-3">
+                    <div className="text-white font-semibold text-sm leading-snug">{item.title}</div>
+                    <div className="text-white/60 text-xs mt-0.5">{item.desc}</div>
+                  </div>
+                  <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="w-7 h-7 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center">
+                      <Icon name="ZoomIn" size={14} className="text-white" />
+                    </div>
+                  </div>
+                  <span className={`absolute top-2 left-2 px-2 py-0.5 rounded-full text-xs font-medium ${item.category === "Адресники" ? "bg-orange-500/80 text-white" : "bg-violet-600/80 text-white"}`}>
+                    {item.category}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* ZOOM MODAL */}
+      <Dialog open={!!portfolioZoom} onOpenChange={() => setPortfolioZoom(null)}>
+        <DialogContent className="bg-[#0f0f18] border-white/10 max-w-2xl w-full p-0 gap-0 overflow-hidden">
+          {portfolioZoom && (
+            <>
+              <img src={portfolioZoom.image} alt={portfolioZoom.title} className="w-full max-h-[60vh] object-cover" />
+              <div className="px-6 py-5">
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <span className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-medium mb-2 ${portfolioZoom.category === "Адресники" ? "bg-orange-500/20 text-orange-400" : "bg-violet-600/20 text-violet-400"}`}>
+                      {portfolioZoom.category}
+                    </span>
+                    <h3 className="font-oswald text-2xl font-bold text-white">{portfolioZoom.title}</h3>
+                    <p className="text-white/50 mt-1">{portfolioZoom.desc}</p>
+                  </div>
+                </div>
+                <div className="flex gap-3 mt-5">
+                  <button onClick={() => { setPortfolioZoom(null); setPortfolioOpen(false); setSection("catalog"); setCategoryFilter(portfolioZoom.category === "Адресники" ? "addresses" : "3d"); }} className="flex-1 h-11 bg-violet-600 hover:bg-violet-500 text-white rounded-xl font-semibold text-sm transition-all flex items-center justify-center gap-2">
+                    <Icon name="ShoppingBag" size={16} />
+                    Заказать похожее
+                  </button>
+                  <button onClick={() => setPortfolioZoom(null)} className="h-11 px-5 border border-white/15 text-white/50 hover:text-white rounded-xl text-sm transition-all">
+                    Закрыть
+                  </button>
+                </div>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
