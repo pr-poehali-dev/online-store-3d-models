@@ -1,0 +1,28 @@
+{
+  "tests": [
+    {
+      "name": "OPTIONS preflight",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200
+    },
+    {
+      "name": "Валидация пустых полей",
+      "method": "POST",
+      "path": "/",
+      "body": {"name": "", "phone": "", "message": ""},
+      "expectedStatus": 400,
+      "expectedBody": {"error": "Заполните все поля"},
+      "bodyMatcher": "partial"
+    },
+    {
+      "name": "Отправка заявки",
+      "method": "POST",
+      "path": "/",
+      "body": {"name": "Тест", "phone": "+7 999 000 00 00", "message": "Тестовое сообщение с формы"},
+      "expectedStatus": 200,
+      "expectedBody": {"ok": true},
+      "bodyMatcher": "partial"
+    }
+  ]
+}
