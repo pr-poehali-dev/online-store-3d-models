@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
 
 const IMG_BONE = "https://cdn.poehali.dev/projects/1386808b-a5d7-4de2-b8cf-746aab457378/files/9091039e-f2d0-46e5-9701-3ca18d9c59cd.jpg";
 const IMG_HEARTS = "https://cdn.poehali.dev/projects/1386808b-a5d7-4de2-b8cf-746aab457378/files/95cd9609-de25-4e37-b6fe-a7f0a983aaa1.jpg";
@@ -131,6 +132,15 @@ export default function Index() {
   const [portfolioOpen, setPortfolioOpen] = useState(false);
   const [portfolioFilter, setPortfolioFilter] = useState("Все");
   const [portfolioZoom, setPortfolioZoom] = useState<typeof PORTFOLIO_ITEMS[0] | null>(null);
+  const [contactOpen, setContactOpen] = useState(false);
+  const [contactForm, setContactForm] = useState({ name: "", phone: "", message: "" });
+  const [contactSent, setContactSent] = useState(false);
+
+  const handleContactSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setContactSent(true);
+    setTimeout(() => { setContactSent(false); setContactForm({ name: "", phone: "", message: "" }); setContactOpen(false); }, 3000);
+  };
 
   const openProduct = (p: Product) => { setActiveProduct(p); setSection("product"); window.scrollTo(0, 0); };
   const goBack = () => { setSection(activeProduct?.category === "addresses" || activeProduct?.category === "3d" ? "catalog" : "home"); setActiveProduct(null); };
@@ -177,6 +187,7 @@ export default function Index() {
             <button onClick={() => { setSection("home"); setActiveProduct(null); }} className={`px-5 py-1.5 rounded-full text-sm font-medium transition-all ${section === "home" ? "bg-violet-600 text-white shadow-lg shadow-violet-500/30" : "text-white/50 hover:text-white"}`}>Главная</button>
             <button onClick={() => { setSection("catalog"); setActiveProduct(null); }} className={`px-5 py-1.5 rounded-full text-sm font-medium transition-all ${section === "catalog" || section === "product" ? "bg-violet-600 text-white shadow-lg shadow-violet-500/30" : "text-white/50 hover:text-white"}`}>Каталог</button>
             <button onClick={() => setPortfolioOpen(true)} className="px-5 py-1.5 rounded-full text-sm font-medium transition-all text-white/50 hover:text-white">Портфолио</button>
+            <button onClick={() => setContactOpen(true)} className="px-5 py-1.5 rounded-full text-sm font-medium transition-all text-white/50 hover:text-white">Написать</button>
           </div>
 
           <Sheet open={cartOpen} onOpenChange={setCartOpen}>
@@ -388,6 +399,30 @@ export default function Index() {
                   <Icon name="ArrowRight" size={16} />
                 </div>
               </button>
+            </div>
+          </section>
+
+          {/* CONTACT CTA */}
+          <section className="py-6 px-4">
+            <div className="max-w-7xl mx-auto">
+              <div className="relative overflow-hidden rounded-2xl border border-emerald-500/20 bg-emerald-500/5 p-6 flex flex-col sm:flex-row items-center justify-between gap-5">
+                <div className="flex items-center gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-emerald-500/15 flex items-center justify-center flex-shrink-0">
+                    <Icon name="MessageCircle" size={22} className="text-emerald-400" />
+                  </div>
+                  <div>
+                    <div className="font-oswald text-lg font-bold text-white">Есть вопрос или особый заказ?</div>
+                    <div className="text-white/40 text-sm">Напишите нам — ответим в течение 1 часа</div>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setContactOpen(true)}
+                  className="flex-shrink-0 flex items-center gap-2 bg-emerald-500 hover:bg-emerald-400 text-black font-semibold px-6 py-3 rounded-full transition-all shadow-lg shadow-emerald-500/20"
+                >
+                  <Icon name="Send" size={16} />
+                  Написать нам
+                </button>
+              </div>
             </div>
           </section>
 
@@ -608,6 +643,89 @@ export default function Index() {
           <span>С любовью к животным 🐕 🐈</span>
         </div>
       </footer>
+
+      {/* CONTACT MODAL */}
+      <Dialog open={contactOpen} onOpenChange={v => { setContactOpen(v); if (!v) setContactSent(false); }}>
+        <DialogContent className="bg-[#0f0f18] border-white/10 max-w-lg w-full p-0 gap-0 overflow-hidden">
+          <DialogHeader className="px-6 pt-6 pb-4 border-b border-white/8">
+            <DialogTitle className="font-oswald text-2xl text-white flex items-center gap-3">
+              <div className="w-8 h-8 rounded-xl bg-emerald-500/20 flex items-center justify-center">
+                <Icon name="MessageCircle" size={18} className="text-emerald-400" />
+              </div>
+              Написать нам
+            </DialogTitle>
+          </DialogHeader>
+
+          {contactSent ? (
+            <div className="flex flex-col items-center justify-center gap-5 py-16 px-6 text-center">
+              <div className="w-20 h-20 rounded-full bg-emerald-500/20 flex items-center justify-center animate-scale-in">
+                <Icon name="CheckCircle" size={40} className="text-emerald-400" />
+              </div>
+              <div>
+                <h3 className="font-oswald text-2xl text-white font-bold">Сообщение отправлено!</h3>
+                <p className="text-white/50 mt-2">Мы ответим вам в течение 1 часа</p>
+              </div>
+            </div>
+          ) : (
+            <form onSubmit={handleContactSubmit} className="p-6 space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <label className="text-sm text-white/50 font-medium">Ваше имя</label>
+                  <Input
+                    placeholder="Анна"
+                    value={contactForm.name}
+                    onChange={e => setContactForm(f => ({ ...f, name: e.target.value }))}
+                    required
+                    className="bg-white/5 border-white/10 text-white placeholder:text-white/25 focus:border-emerald-500/50 h-11"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-sm text-white/50 font-medium">Телефон</label>
+                  <Input
+                    placeholder="+7 (999) 000-00-00"
+                    value={contactForm.phone}
+                    onChange={e => setContactForm(f => ({ ...f, phone: e.target.value }))}
+                    required
+                    className="bg-white/5 border-white/10 text-white placeholder:text-white/25 focus:border-emerald-500/50 h-11"
+                  />
+                </div>
+              </div>
+              <div className="space-y-1.5">
+                <label className="text-sm text-white/50 font-medium">Сообщение</label>
+                <Textarea
+                  placeholder="Опишите что вам нужно: тип изделия, питомец, текст для гравировки, пожелания..."
+                  value={contactForm.message}
+                  onChange={e => setContactForm(f => ({ ...f, message: e.target.value }))}
+                  required
+                  rows={4}
+                  className="bg-white/5 border-white/10 text-white placeholder:text-white/25 focus:border-emerald-500/50 resize-none"
+                />
+              </div>
+
+              <div className="flex items-center gap-4 pt-1">
+                <button
+                  type="submit"
+                  className="flex-1 h-12 bg-emerald-500 hover:bg-emerald-400 text-black font-semibold rounded-xl transition-all flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/20"
+                >
+                  <Icon name="Send" size={16} />
+                  Отправить
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setContactOpen(false)}
+                  className="h-12 px-5 border border-white/15 text-white/50 hover:text-white rounded-xl text-sm transition-all"
+                >
+                  Отмена
+                </button>
+              </div>
+
+              <p className="text-white/25 text-xs text-center">
+                Нажимая «Отправить», вы соглашаетесь на обработку персональных данных
+              </p>
+            </form>
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* PORTFOLIO MODAL */}
       <Dialog open={portfolioOpen} onOpenChange={setPortfolioOpen}>
