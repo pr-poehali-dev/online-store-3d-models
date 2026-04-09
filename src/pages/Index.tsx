@@ -43,17 +43,80 @@ const BADGE_STYLE: Record<string, string> = {
   purple: "bg-violet-600 text-white",
 };
 
+const PRODUCT_DETAILS: Record<number, { description: string; features: string[]; material: string; size: string; delivery: string }> = {
+  1: {
+    description: "Адресник в форме косточки — идеально для активных собак. Лазерная гравировка держится годами и не стирается. Укажем имя питомца, ваш номер телефона или адрес — всё что важно.",
+    features: ["Лазерная гравировка", "Двусторонняя надпись", "Кольцо в комплекте", "Не ржавеет"],
+    material: "Нержавеющая сталь 304",
+    size: "4 × 2.5 см",
+    delivery: "1–2 дня",
+  },
+  2: {
+    description: "Нежный адресник в форме сердечка для кошек и маленьких собак. Анодированный алюминий в розовом или голубом цвете — красиво смотрится на любом ошейнике.",
+    features: ["Цветное анодирование", "Лёгкий алюминий", "Гравировка с двух сторон", "Кольцо в комплекте"],
+    material: "Анодированный алюминий",
+    size: "3 × 3 см",
+    delivery: "1–2 дня",
+  },
+  3: {
+    description: "Классический адресник в форме звезды — заметный и стильный. Подходит для средних и крупных пород. Гравируем имя и телефон по вашему тексту.",
+    features: ["Нержавеющая сталь", "Лазерная гравировка", "Прочное кольцо", "Полировка зеркальная"],
+    material: "Нержавеющая сталь 316",
+    size: "4 × 4 см",
+    delivery: "1–2 дня",
+  },
+  4: {
+    description: "Минималистичный круглый адресник — универсальная классика. Подходит кошкам и собакам любого размера. Гравировка не выцветает и не стирается.",
+    features: ["Круглая форма", "Два цвета на выбор", "Двусторонняя гравировка", "Лёгкий вес"],
+    material: "Анодированный алюминий",
+    size: "3 × 3 см",
+    delivery: "1 день",
+  },
+  5: {
+    description: "Точная 3D-копия вашего питомца по фотографии. Идеальный подарок для любителей животных. Прорабатываем каждую деталь: шерсть, мордочку, позу. Высота фигурки — 10 см.",
+    features: ["По фото питомца", "Высота 10 см", "Расписная вручную", "Подарочная упаковка"],
+    material: "Фотополимерная смола",
+    size: "10 × 8 × 7 см",
+    delivery: "5–7 дней",
+  },
+  6: {
+    description: "Милый 3D-брелок в форме кошки из белой смолы. Лёгкий и прочный. Можно заказать с именем питомца на подвеске. Идеально как подарок или для себя.",
+    features: ["Лёгкий вес 8 г", "Металлическое кольцо", "Белая смола", "Имя на заказ"],
+    material: "Белая фотополимерная смола",
+    size: "5 × 3 × 2 см",
+    delivery: "3–5 дней",
+  },
+  7: {
+    description: "Большая настольная статуэтка вашей собаки. Делаем по 2–3 фотографиям питомца. Отличный памятный подарок или украшение для дома. Поставляется на деревянной подставке.",
+    features: ["Деревянная подставка", "По фото питомца", "Высота 15 см", "Матовая отделка"],
+    material: "Фотополимерная смола + дерево",
+    size: "15 × 10 × 10 см",
+    delivery: "7–10 дней",
+  },
+  8: {
+    description: "Яркий магнит на холодильник с 3D-портретом вашего кота или собаки. Плоский, лёгкий, держится крепко. Отличный сувенир или повседневный предмет декора.",
+    features: ["Сильный магнит", "Плоский профиль", "Полноцветная печать", "По фото питомца"],
+    material: "ПЛА-пластик + магнит",
+    size: "8 × 8 × 0.5 см",
+    delivery: "3–5 дней",
+  },
+};
+
 interface CartItem extends Product { qty: number; }
-type Section = "home" | "catalog";
+type Section = "home" | "catalog" | "product";
 
 export default function Index() {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [section, setSection] = useState<Section>("home");
+  const [activeProduct, setActiveProduct] = useState<Product | null>(null);
   const [categoryFilter, setCategoryFilter] = useState<"all" | "addresses" | "3d">("all");
   const [subcatFilter, setSubcatFilter] = useState("Все");
   const [search, setSearch] = useState("");
   const [cartOpen, setCartOpen] = useState(false);
   const [orderDone, setOrderDone] = useState(false);
+
+  const openProduct = (p: Product) => { setActiveProduct(p); setSection("product"); window.scrollTo(0, 0); };
+  const goBack = () => { setSection(activeProduct?.category === "addresses" || activeProduct?.category === "3d" ? "catalog" : "home"); setActiveProduct(null); };
 
   const cartCount = cart.reduce((s, i) => s + i.qty, 0);
   const cartTotal = cart.reduce((s, i) => s + i.price * i.qty, 0);
@@ -94,8 +157,8 @@ export default function Index() {
           </button>
 
           <div className="hidden md:flex items-center gap-1 bg-white/5 rounded-full px-1 py-1 border border-white/10">
-            <button onClick={() => setSection("home")} className={`px-5 py-1.5 rounded-full text-sm font-medium transition-all ${section === "home" ? "bg-violet-600 text-white shadow-lg shadow-violet-500/30" : "text-white/50 hover:text-white"}`}>Главная</button>
-            <button onClick={() => setSection("catalog")} className={`px-5 py-1.5 rounded-full text-sm font-medium transition-all ${section === "catalog" ? "bg-violet-600 text-white shadow-lg shadow-violet-500/30" : "text-white/50 hover:text-white"}`}>Каталог</button>
+            <button onClick={() => { setSection("home"); setActiveProduct(null); }} className={`px-5 py-1.5 rounded-full text-sm font-medium transition-all ${section === "home" ? "bg-violet-600 text-white shadow-lg shadow-violet-500/30" : "text-white/50 hover:text-white"}`}>Главная</button>
+            <button onClick={() => { setSection("catalog"); setActiveProduct(null); }} className={`px-5 py-1.5 rounded-full text-sm font-medium transition-all ${section === "catalog" || section === "product" ? "bg-violet-600 text-white shadow-lg shadow-violet-500/30" : "text-white/50 hover:text-white"}`}>Каталог</button>
           </div>
 
           <Sheet open={cartOpen} onOpenChange={setCartOpen}>
@@ -269,7 +332,7 @@ export default function Index() {
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
                 {hits.map((p, i) => (
-                  <ProductCard key={p.id} product={p} onAdd={addToCart} delay={i * 100} />
+                  <ProductCard key={p.id} product={p} onAdd={addToCart} onOpen={openProduct} delay={i * 100} />
                 ))}
                 <div onClick={() => setSection("catalog")} className="bg-white/4 border border-white/10 border-dashed rounded-2xl p-8 flex flex-col items-center justify-center gap-3 cursor-pointer hover:border-violet-500/50 hover:bg-violet-500/5 transition-all group">
                   <div className="w-14 h-14 rounded-full bg-violet-500/15 flex items-center justify-center group-hover:scale-110 transition-transform">
@@ -367,12 +430,124 @@ export default function Index() {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
               {filtered.map((p, i) => (
-                <ProductCard key={p.id} product={p} onAdd={addToCart} delay={i * 50} />
+                <ProductCard key={p.id} product={p} onAdd={addToCart} onOpen={openProduct} delay={i * 50} />
               ))}
             </div>
           )}
         </div>
       )}
+
+      {/* PRODUCT PAGE */}
+      {section === "product" && activeProduct && (() => {
+        const details = PRODUCT_DETAILS[activeProduct.id];
+        const related = PRODUCTS.filter(p => p.id !== activeProduct.id && p.category === activeProduct.category).slice(0, 4);
+        return (
+          <div className="max-w-7xl mx-auto px-4 py-10 animate-fade-in">
+            {/* Breadcrumb */}
+            <div className="flex items-center gap-2 text-sm text-white/40 mb-8">
+              <button onClick={() => { setSection("home"); setActiveProduct(null); }} className="hover:text-white transition-colors">Главная</button>
+              <Icon name="ChevronRight" size={14} />
+              <button onClick={() => { setSection("catalog"); setActiveProduct(null); }} className="hover:text-white transition-colors">Каталог</button>
+              <Icon name="ChevronRight" size={14} />
+              <span className="text-white/70 truncate max-w-[200px]">{activeProduct.name}</span>
+            </div>
+
+            <div className="grid lg:grid-cols-2 gap-12 mb-16">
+              {/* Image */}
+              <div className="relative">
+                <div className="absolute inset-0 bg-violet-600/10 rounded-3xl blur-3xl" />
+                <img
+                  src={activeProduct.image}
+                  alt={activeProduct.name}
+                  className="relative w-full aspect-square object-cover rounded-3xl border border-white/10 shadow-2xl"
+                />
+                {activeProduct.badge && (
+                  <span className={`absolute top-5 left-5 px-3 py-1.5 rounded-full text-sm font-bold ${BADGE_STYLE[activeProduct.badgeColor || "purple"]}`}>
+                    {activeProduct.badge}
+                  </span>
+                )}
+              </div>
+
+              {/* Info */}
+              <div className="flex flex-col gap-6">
+                <div>
+                  <div className="text-violet-400 text-sm font-medium mb-2">{activeProduct.subcategory}</div>
+                  <h1 className="font-oswald text-4xl md:text-5xl font-bold text-white leading-tight mb-4">{activeProduct.name}</h1>
+                  <div className="flex items-center gap-3 mb-5">
+                    <div className="flex items-center gap-1">
+                      {[1,2,3,4,5].map(i => (
+                        <span key={i} className={i <= Math.round(activeProduct.rating) ? "text-yellow-400" : "text-white/20"}>★</span>
+                      ))}
+                    </div>
+                    <span className="text-white font-semibold">{activeProduct.rating}</span>
+                    <span className="text-white/40 text-sm">{activeProduct.reviews} отзывов</span>
+                  </div>
+                  <div className="flex items-end gap-3">
+                    <span className="font-oswald text-5xl font-bold text-white">{activeProduct.price} ₽</span>
+                    {activeProduct.oldPrice && (
+                      <span className="text-white/30 text-xl line-through pb-1">{activeProduct.oldPrice} ₽</span>
+                    )}
+                  </div>
+                </div>
+
+                {details && (
+                  <p className="text-white/60 leading-relaxed text-base">{details.description}</p>
+                )}
+
+                {details && (
+                  <div className="grid grid-cols-2 gap-3">
+                    {[
+                      { label: "Материал", value: details.material, icon: "Layers" },
+                      { label: "Размер", value: details.size, icon: "Ruler" },
+                      { label: "Изготовление", value: details.delivery, icon: "Clock" },
+                      { label: "Отзывы", value: `${activeProduct.reviews} шт.`, icon: "MessageCircle" },
+                    ].map(s => (
+                      <div key={s.label} className="bg-white/4 border border-white/8 rounded-xl p-3.5 flex items-start gap-2.5">
+                        <Icon name={s.icon} size={16} className="text-violet-400 mt-0.5 flex-shrink-0" />
+                        <div>
+                          <div className="text-white/40 text-xs">{s.label}</div>
+                          <div className="text-white text-sm font-medium">{s.value}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {details && (
+                  <div className="flex flex-wrap gap-2">
+                    {details.features.map(f => (
+                      <span key={f} className="flex items-center gap-1.5 text-sm text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1.5 rounded-full">
+                        <Icon name="Check" size={13} />
+                        {f}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
+                <div className="flex gap-3 pt-2">
+                  <AddToCartButton product={activeProduct} onAdd={addToCart} />
+                  <button onClick={goBack} className="flex items-center gap-2 border border-white/15 text-white/60 hover:text-white hover:border-white/30 px-5 py-3 rounded-xl font-medium text-sm transition-all">
+                    <Icon name="ArrowLeft" size={16} />
+                    Назад
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Related */}
+            {related.length > 0 && (
+              <div>
+                <h2 className="font-oswald text-2xl font-bold text-white mb-6">Похожие товары</h2>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {related.map((p, i) => (
+                    <ProductCard key={p.id} product={p} onAdd={addToCart} onOpen={openProduct} delay={i * 80} />
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      })()}
 
       {/* FOOTER */}
       <footer className="mt-20 border-t border-white/5 py-10 px-4">
@@ -389,10 +564,24 @@ export default function Index() {
   );
 }
 
-function ProductCard({ product: p, onAdd, delay }: { product: Product; onAdd: (p: Product) => void; delay?: number }) {
+function AddToCartButton({ product: p, onAdd, full = true }: { product: Product; onAdd: (p: Product) => void; full?: boolean }) {
+  const [added, setAdded] = useState(false);
+  const handle = () => { onAdd(p); setAdded(true); setTimeout(() => setAdded(false), 1500); };
+  return (
+    <button
+      onClick={handle}
+      className={`${full ? "flex-1" : "w-full"} h-12 rounded-xl font-semibold text-sm transition-all flex items-center justify-center gap-2 ${added ? "bg-emerald-500 text-black" : "bg-violet-600 hover:bg-violet-500 text-white hover:shadow-lg hover:shadow-violet-500/25"}`}
+    >
+      {added ? <><Icon name="Check" size={16} /> Добавлено в корзину</> : <><Icon name="ShoppingCart" size={18} /> В корзину</>}
+    </button>
+  );
+}
+
+function ProductCard({ product: p, onAdd, onOpen, delay }: { product: Product; onAdd: (p: Product) => void; onOpen: (p: Product) => void; delay?: number }) {
   const [added, setAdded] = useState(false);
 
-  const handleAdd = () => {
+  const handleAdd = (e: React.MouseEvent) => {
+    e.stopPropagation();
     onAdd(p);
     setAdded(true);
     setTimeout(() => setAdded(false), 1500);
@@ -400,7 +589,8 @@ function ProductCard({ product: p, onAdd, delay }: { product: Product; onAdd: (p
 
   return (
     <div
-      className="bg-white/4 border border-white/8 rounded-2xl overflow-hidden flex flex-col hover:-translate-y-1.5 hover:border-violet-500/30 hover:shadow-xl hover:shadow-violet-500/10 transition-all duration-300 animate-fade-in"
+      onClick={() => onOpen(p)}
+      className="bg-white/4 border border-white/8 rounded-2xl overflow-hidden flex flex-col hover:-translate-y-1.5 hover:border-violet-500/30 hover:shadow-xl hover:shadow-violet-500/10 transition-all duration-300 animate-fade-in cursor-pointer"
       style={{ animationDelay: `${delay || 0}ms`, opacity: 0, animationFillMode: "forwards" }}
     >
       <div className="relative aspect-square overflow-hidden">
@@ -424,12 +614,20 @@ function ProductCard({ product: p, onAdd, delay }: { product: Product; onAdd: (p
           {p.oldPrice && <span className="text-white/30 text-sm line-through">{p.oldPrice} ₽</span>}
         </div>
         <div className="text-xs text-white/30">{p.reviews} отзывов</div>
-        <button
-          onClick={handleAdd}
-          className={`mt-auto w-full h-10 rounded-xl font-semibold text-sm transition-all flex items-center justify-center gap-2 ${added ? "bg-emerald-500 text-black" : "bg-violet-600 hover:bg-violet-500 text-white hover:shadow-lg hover:shadow-violet-500/25"}`}
-        >
-          {added ? <><Icon name="Check" size={16} /> Добавлено</> : <><Icon name="ShoppingCart" size={16} /> В корзину</>}
-        </button>
+        <div className="mt-auto flex gap-2">
+          <button
+            onClick={handleAdd}
+            className={`flex-1 h-10 rounded-xl font-semibold text-sm transition-all flex items-center justify-center gap-1.5 ${added ? "bg-emerald-500 text-black" : "bg-violet-600 hover:bg-violet-500 text-white"}`}
+          >
+            {added ? <><Icon name="Check" size={14} /> Добавлено</> : <><Icon name="ShoppingCart" size={14} /> В корзину</>}
+          </button>
+          <button
+            onClick={e => { e.stopPropagation(); onOpen(p); }}
+            className="w-10 h-10 rounded-xl border border-white/10 hover:border-violet-500/50 hover:bg-violet-500/10 flex items-center justify-center text-white/40 hover:text-violet-400 transition-all flex-shrink-0"
+          >
+            <Icon name="Eye" size={15} />
+          </button>
+        </div>
       </div>
     </div>
   );
